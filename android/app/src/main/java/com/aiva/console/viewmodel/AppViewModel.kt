@@ -167,6 +167,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             com.aiva.console.notifications.SchedulerNotifier.notify(
                 getApplication(), run.name, run.result.ifBlank { "Done" },
             )
+            // surface the result in the conversation immediately
+            messages.value = messages.value +
+                ChatMessage(false, "⏰ [${run.name}] ${run.result.ifBlank { "Done" }}")
         }
     }
 

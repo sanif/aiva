@@ -97,8 +97,8 @@ the bridge retries fresh automatically.
 ```env
 CHAT_PROVIDER=cli
 # Claude Code session WITH Aiva's tools via MCP (recommended):
-CHAT_CLI_CMD=["claude","-p","{message}","--mcp-config","aiva-mcp.json","--allowedTools","mcp__aiva","--append-system-prompt","{system}"]
-CHAT_CLI_CONTINUE_CMD=["claude","-p","{message}","--continue","--mcp-config","aiva-mcp.json","--allowedTools","mcp__aiva","--append-system-prompt","{system}"]
+CHAT_CLI_CMD=["claude","-p","{message}","--mcp-config","aiva-mcp.json","--allowedTools","mcp__aiva,WebFetch,WebSearch","--append-system-prompt","{system}"]
+CHAT_CLI_CONTINUE_CMD=["claude","-p","{message}","--continue","--mcp-config","aiva-mcp.json","--allowedTools","mcp__aiva,WebFetch,WebSearch","--append-system-prompt","{system}"]
 # or Codex: CHAT_CLI_CMD=["codex","exec","{message}"]
 # or anything: CHAT_CLI_CMD=["./my-agent.sh","{message}"]
 ```
