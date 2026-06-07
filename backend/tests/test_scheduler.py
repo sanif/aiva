@@ -130,3 +130,28 @@ async def test_schedules_rest_api(client):
 
     r = await client.delete(f"/api/schedules/{sid}", headers=AUTH)
     assert r.json()["ok"] is True
+
+
+async def test_snapshot_carries_last_schedule_run(client, monkeypatch):
+    await init_db()
+
+    async def fake_complete(message, *, context=None):
+        return "summary done"
+
+    from app.services import llm_service
+
+    monkeypatch.setattr(llm_service, "complete", fake_complete)
+
+    await scheduler_service.create("morning brief", "summarize", "10:15")
+    await scheduler_service.run_due(now=at(h=10, mi=15))
+
+    from app.routers.websocket import _snapshot_payload
+    from app.services import monitor_service
+
+    metrics = await monitor_service.monitor.get_metrics()
+    payload = await _snapshot_payload(metrics)
+    last = payload["last_schedule"]
+    assert last is not None
+    assert last["name"] == "morning brief"
+    assert last["result"] == "summary done"
+    assert last["ts"]

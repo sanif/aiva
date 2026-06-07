@@ -114,6 +114,26 @@ async def delete(schedule_id: int) -> bool:
         return True
 
 
+async def last_run() -> Optional[dict]:
+    """Most recent completed run — surfaced in dashboard snapshots so the
+    app can raise a notification when a job finishes."""
+    async with AsyncSessionLocal() as session:
+        row = await session.scalar(
+            select(Schedule)
+            .where(Schedule.last_run_at.is_not(None))
+            .order_by(Schedule.last_run_at.desc())
+            .limit(1)
+        )
+        if row is None:
+            return None
+        return {
+            "id": row.id,
+            "name": row.name,
+            "ts": row.last_run_at.isoformat() if row.last_run_at else "",
+            "result": (row.last_result or "")[:300],
+        }
+
+
 async def run_due(now: Optional[datetime] = None) -> int:
     """Run every enabled schedule that fires this minute. Returns run count."""
     now = now or datetime.now()

@@ -128,8 +128,14 @@ private fun TopIcon(icon: ImageVector, onClick: () -> Unit) {
  */
 data class LensCircle(val cx: Float, val cy: Float, val r: Float)
 
-/** Hardcoded default calibration (set from on-device calibration; null = none). */
-val HARDCODED_LENSES: List<LensCircle>? = null
+/** Default calibration measured on a real Razr 60 Ultra (1080x1272 window).
+ *  L1/L2 come from on-device calibration; the flash is estimated. A user
+ *  calibration saved in Settings always wins over these. */
+val HARDCODED_LENSES: List<LensCircle>? = listOf(
+    LensCircle(0.5030f, 0.8550f, 0.0370f), // flash (estimated)
+    LensCircle(0.6660f, 0.8550f, 0.1011f), // lens 1
+    LensCircle(0.8739f, 0.8551f, 0.1016f), // lens 2
+)
 
 fun encodeLensCal(circles: List<LensCircle>): String =
     circles.joinToString(";") { "%.4f,%.4f,%.4f".format(it.cx, it.cy, it.r) }

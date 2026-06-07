@@ -89,7 +89,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         mirrorJobs.clear()
         historyLoaded = false
         val r = repo
-        mirrorJobs += viewModelScope.launch { r.snapshots.collect { _snapshot.value = it } }
+        mirrorJobs += viewModelScope.launch {
+            var lastSummary: com.aiva.console.data.model.TasksSummary? = null
+            r.snapshots.collect { snap ->
+                _snapshot.value = snap
+                // chatbot/scheduler mutated tasks server-side → refresh without a restart
+                if (lastSummary != null && snap.tasksSummary != lastSummary) {
+                    runCatching { _tasks.value = r.fetchTasks() }
+                    runCatching { _notes.value = r.notes() }
+                }
+                lastSummary = snap.tasksSummary
+                snap.lastSchedule?.let { maybeNotifySchedule(it) }
+            }
+        }
         mirrorJobs += viewModelScope.launch { r.connection.collect { _conn.value = it } }
         mirrorJobs += viewModelScope.launch {
             runCatching { _tasks.value = r.fetchTasks() }
@@ -143,6 +155,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private var toastJob: Job? = null
 
     fun nav(s: Screen) { screen.value = s }
+
+    /** Raise a system notification when a NEW scheduler run appears. */
+    private fun maybeNotifySchedule(run: com.aiva.console.data.model.ScheduleRun) {
+        if (run.ts.isBlank()) return
+        val s = settings.value
+        if (run.ts == s.lastScheduleNotified) return
+        val isFirstSight = s.lastScheduleNotified.isBlank()
+        viewModelScope.launch { store.update(settings.value.copy(lastScheduleNotified = run.ts)) }
+        if (!isFirstSight) {
+            com.aiva.console.notifications.SchedulerNotifier.notify(
+                getApplication(), run.name, run.result.ifBlank { "Done" },
+            )
+        }
+    }
 
     /** Public toast hook for UI-layer failures (e.g. missing browser/recognizer). */
     fun notify(msg: String) = showToast(msg)
@@ -303,6 +329,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                             messages.value =
                                 if (started) messages.value.dropLast(1) + ChatMessage(false, full)
                                 else messages.value + ChatMessage(false, full)
+                            // the agent may have created/changed tasks or notes
+                            launch {
+                                runCatching { _tasks.value = repo.fetchTasks() }
+                                runCatching { _notes.value = repo.notes() }
+                            }
                             // propose the detected action — runs only on approval
                             if (intent != null) {
                                 messages.value = messages.value + ChatMessage(false, "", suggestion = intent)

@@ -77,8 +77,13 @@ Everything lives in `backend/.env`. The interesting ones:
 | `MOCK_MODE` | canned data, no LLM needed |
 
 Provider recipes, the full API reference and MCP setup: `backend/README.md`.
-User data (persona, memory, SQLite) lives in `workspace/`, created on first
-run and never tracked.
+
+User data lives in `workspace/`, created on first run and never tracked. The
+markdown files there shape the agent directly, so edit them to make Aiva
+yours: `SOUL.md` is her personality and rules, `USER.md` is who you are and
+what you care about, and `memory/MEMORY.md` holds long-term facts (she also
+appends to these herself through her memory tools). Changes apply on the
+next message, no restart needed.
 
 ## Security
 

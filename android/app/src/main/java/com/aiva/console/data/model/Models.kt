@@ -80,6 +80,15 @@ data class AgendaItem(
     val now: Boolean = false,
 )
 
+/** Most recent completed scheduler run (pushed in WS snapshots). */
+@Serializable
+data class ScheduleRun(
+    val id: Int = 0,
+    val name: String = "",
+    val ts: String = "",
+    val result: String = "",
+)
+
 /** Served by GET /api/dashboard and pushed on /ws/dashboard. */
 @Serializable
 data class DashboardSnapshot(
@@ -92,6 +101,7 @@ data class DashboardSnapshot(
     val docker: DockerInfo = DockerInfo(),
     val alerts: List<Alert> = emptyList(),
     @SerialName("tasks_summary") val tasksSummary: TasksSummary = TasksSummary(),
+    @SerialName("last_schedule") val lastSchedule: ScheduleRun? = null,
     @SerialName("top_tasks") val topTasks: List<TaskItem> = emptyList(),
     val agenda: List<AgendaItem> = emptyList(),
 )

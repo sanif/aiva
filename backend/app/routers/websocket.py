@@ -66,6 +66,8 @@ async def _snapshot_payload(metrics: Metrics) -> dict:
         )
     alerts = alert_service.derive_alerts(metrics, services, docker)
     ai_status = alert_service.ai_status_from_alerts(alerts)
+    from ..services import scheduler_service
+
     return {
         "type": "snapshot",
         "ts": _now_iso(),
@@ -75,6 +77,7 @@ async def _snapshot_payload(metrics: Metrics) -> dict:
         "alerts": [a.model_dump() for a in alerts],
         "tasks_summary": tasks_summary.model_dump(),
         "ai_status": ai_status,
+        "last_schedule": await scheduler_service.last_run(),
     }
 
 

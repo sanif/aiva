@@ -28,6 +28,8 @@ data class AivaSettings(
     val ambientStyle: Int = 0,
     /** Ambient clock accent color index (see AMBIENT_COLORS). */
     val ambientColor: Int = 0,
+    /** Timestamp of the last scheduler run we raised a notification for. */
+    val lastScheduleNotified: String = "",
 )
 
 private val Context.dataStore by preferencesDataStore(name = "aiva_settings")
@@ -47,6 +49,7 @@ class SettingsStore(private val context: Context) {
         val railCollapsed = booleanPreferencesKey("rail_collapsed")
         val ambientStyle = intPreferencesKey("ambient_style")
         val ambientColor = intPreferencesKey("ambient_color")
+        val lastScheduleNotified = stringPreferencesKey("last_schedule_notified")
     }
 
     val settings: Flow<AivaSettings> = context.dataStore.data.map { p ->
@@ -63,6 +66,7 @@ class SettingsStore(private val context: Context) {
             railCollapsed = p[Keys.railCollapsed] ?: false,
             ambientStyle = p[Keys.ambientStyle] ?: 0,
             ambientColor = p[Keys.ambientColor] ?: 0,
+            lastScheduleNotified = p[Keys.lastScheduleNotified] ?: "",
         )
     }
 
@@ -80,6 +84,7 @@ class SettingsStore(private val context: Context) {
             p[Keys.railCollapsed] = s.railCollapsed
             p[Keys.ambientStyle] = s.ambientStyle
             p[Keys.ambientColor] = s.ambientColor
+            p[Keys.lastScheduleNotified] = s.lastScheduleNotified
         }
     }
 }

@@ -79,9 +79,9 @@ private fun lensGeometry(cal: List<LensCircle>, w: Float, h: Float): List<LensPx
         cal.map { LensPx(Offset(it.cx * w, it.cy * h), it.r * w) }
     } else {
         listOf(
-            LensPx(Offset(0.50f * w, 0.856f * h), 0.037f * w),  // flash
-            LensPx(Offset(0.665f * w, 0.854f * h), 0.097f * w), // lens 1
-            LensPx(Offset(0.874f * w, 0.852f * h), 0.097f * w), // lens 2
+            LensPx(Offset(0.5030f * w, 0.8550f * h), 0.0370f * w), // flash (estimated)
+            LensPx(Offset(0.6660f * w, 0.8550f * h), 0.1011f * w), // lens 1
+            LensPx(Offset(0.8739f * w, 0.8551f * h), 0.1016f * w), // lens 2
         )
     }
 
