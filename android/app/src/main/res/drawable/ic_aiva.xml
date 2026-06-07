@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Aiva launcher icon — the assistant orb on near-black -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M0,0h108v108h-108z"
+        android:fillColor="#06060C" />
+    <path android:pathData="M54,54m-34,0a34,34 0,1 1,68 0a34,34 0,1 1,-68 0">
+        <aapt:attr xmlns:aapt="http://schemas.android.com/aapt" name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="44"
+                android:centerY="42"
+                android:gradientRadius="52">
+                <item android:offset="0.0" android:color="#FFC9B6FF" />
+                <item android:offset="0.42" android:color="#FF7C4DFF" />
+                <item android:offset="1.0" android:color="#FF2A1A6B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M54,54m-42,0a42,42 0,1 1,84 0a42,42 0,1 1,-84 0"
+        android:strokeColor="#667C4DFF"
+        android:strokeWidth="2"
+        android:fillColor="#00000000" />
+</vector>

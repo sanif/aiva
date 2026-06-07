@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.db
+.env
+
+# Android
+android/.gradle/
+android/local.properties
+android/build/
+android/app/build/
+android/.idea/
+android/captures/
+*.apk
+*.aab
+
+# macOS
+.DS_Store
+
+# brainstorm sessions
+.superpowers/
+
+# user data and private docs — never tracked
+workspace/
+docs/
+design/

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aiva · Dashboard</title>
+<style>
+  :root{
+    --bg:#06060c; --panel:rgba(14,15,28,.72); --line:rgba(154,156,192,.16);
+    --ink:#eef0ff; --dim:#9a9cc0; --faint:#5d5f86;
+    --violet:#7c4dff; --violet2:#9d7bff; --mint:#4dffc4; --warn:#ffce5c; --err:#ff5d6c; --blue:#7cb3ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{
+    background:
+      radial-gradient(110% 70% at 15% 0%, rgba(124,77,255,.14), transparent 60%),
+      radial-gradient(120% 80% at 100% 100%, rgba(77,255,196,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink); font-family:system-ui,sans-serif; min-height:100vh; padding:18px;
+  }
+  header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  h1{font:600 18px/1 var(--mono);letter-spacing:.18em}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--err);box-shadow:0 0 8px var(--err)}
+  .dot.on{background:var(--mint);box-shadow:0 0 8px var(--mint)}
+  .sp{flex:1}
+  input,button{font:500 12px var(--mono);color:var(--ink);background:var(--panel);
+    border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
+  input:focus{border-color:rgba(124,77,255,.5)}
+  button{cursor:pointer}
+  button.primary{background:linear-gradient(140deg,#7c4dff,#6a3ff0);border-color:transparent}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px}
+  .eyebrow{font:600 9px/1 var(--mono);letter-spacing:.2em;color:var(--faint);text-transform:uppercase;
+    display:flex;align-items:center;gap:6px;margin-bottom:12px}
+  .eyebrow::before{content:"";width:5px;height:5px;background:var(--violet);box-shadow:0 0 6px var(--violet)}
+  .metric-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font:500 11px var(--mono);color:var(--dim)}
+  .metric-row b{color:var(--ink);width:52px;font-weight:600}
+  .bar{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:6px;background:var(--mint);transition:width .6s}
+  .row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(154,156,192,.09);font:500 12px system-ui}
+  .row:last-child{border:0}
+  .row .nm{flex:1}
+  .pill{font:600 9px/1 var(--mono);letter-spacing:.1em;padding:3px 7px;border-radius:6px}
+  .up{color:var(--mint);background:rgba(77,255,196,.1)}
+  .warn{color:var(--warn);background:rgba(255,206,92,.12)}
+  .down{color:var(--err);background:rgba(255,93,108,.12)}
+  .mono{font:500 10px var(--mono);color:var(--faint)}
+  .alert{border:1px solid rgba(255,206,92,.3);background:rgba(255,206,92,.06);border-radius:8px;
+    padding:9px;margin-bottom:7px;font:500 12px system-ui}
+  .alert.err{border-color:rgba(255,93,108,.3);background:rgba(255,93,108,.06)}
+  .alert small{display:block;color:var(--faint);font:500 9px var(--mono);margin-top:4px}
+  #chatlog{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .bub{max-width:85%;padding:8px 11px;border-radius:12px;font:500 12px system-ui;white-space:pre-wrap}
+  .bub.me{align-self:flex-end;background:linear-gradient(140deg,#7c4dff,#6a3ff0)}
+  .bub.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+  .composer{display:flex;gap:8px}
+  .composer input{flex:1}
+  .big{font:600 26px/1 var(--mono)}
+  .label{font:600 8.5px/1 var(--mono);letter-spacing:.16em;color:var(--faint);margin-top:5px}
+  .threes{display:flex;gap:22px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:7px;
+    padding:4px 8px;font:600 9.5px var(--mono);color:var(--dim);margin:0 5px 5px 0}
+  .chip i{width:6px;height:6px;border-radius:50%;background:var(--mint)}
+  .chip.dead i{background:var(--err)}
+</style>
+</head>
+<body>
+<header>
+  <span class="dot" id="wsdot"></span>
+  <h1>AIVA · DASHBOARD</h1>
+  <span class="sp"></span>
+  <input id="token" type="password" placeholder="API token" size="22">
+  <button class="primary" onclick="connect()">Connect</button>
+</header>
+
+<div class="grid">
+  <div class="card">
+    <div class="eyebrow">System</div>
+    <div class="threes" style="margin-bottom:14px">
+      <div><div class="big" id="cpu">–</div><div class="label">CPU %</div></div>
+      <div><div class="big" id="ram">–</div><div class="label">RAM %</div></div>
+      <div><div class="big" id="disk">–</div><div class="label">DISK %</div></div>
+      <div><div class="big" id="net">–</div><div class="label">↓ MB/S</div></div>
+    </div>
+    <div class="metric-row"><b>CPU</b><div class="bar"><i id="cpubar"></i></div></div>
+    <div class="metric-row"><b>RAM</b><div class="bar"><i id="rambar"></i></div></div>
+    <div class="metric-row"><b>DISK</b><div class="bar"><i id="diskbar"></i></div></div>
+  </div>
+
+  <div class="card"><div class="eyebrow">Services</div><div id="services" class="mono">connect to load…</div></div>
+  <div class="card"><div class="eyebrow">Docker</div><div id="docker" class="mono">connect to load…</div></div>
+  <div class="card"><div class="eyebrow">Alerts</div><div id="alerts" class="mono">connect to load…</div></div>
+
+  <div class="card">
+    <div class="eyebrow">Tasks</div>
+    <div id="tasks" class="mono">connect to load…</div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <div class="eyebrow">Chat with Aiva</div>
+    <div id="tools" class="mono" style="margin-bottom:10px"></div>
+    <div id="chatlog"></div>
+    <div class="composer">
+      <input id="msg" placeholder="Message Aiva…" onkeydown="if(event.key==='Enter')send()">
+      <button class="primary" onclick="send()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let token = localStorage.getItem('aiva_token') || '';
+document.getElementById('token').value = token;
+let ws = null;
+
+const $ = id => document.getElementById(id);
+const H = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function connect() {
+  token = $('token').value.trim();
+  localStorage.setItem('aiva_token', token);
+
+  // probe the token first so failures are explicit, not silent
+  const probe = await fetch('/api/metrics', { headers: { 'X-API-Token': token } });
+  if (probe.status === 401) {
+    $('wsdot').classList.remove('on');
+    $('token').style.borderColor = 'var(--err)';
+    $('services').innerHTML =
+      '<span style="color:var(--err);font:600 11px var(--mono)">INVALID TOKEN — must match API_TOKEN in backend/.env (restart the backend after editing it)</span>';
+    return;
+  }
+  $('token').style.borderColor = 'var(--mint)';
+
+  if (ws) { ws.onclose = null; ws.close(); }
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws/dashboard?token=${encodeURIComponent(token)}`);
+  ws.onopen = () => $('wsdot').classList.add('on');
+  ws.onclose = () => { $('wsdot').classList.remove('on'); setTimeout(() => ws && connect(), 5000); };
+  ws.onmessage = e => render(JSON.parse(e.data));
+  loadTasks(); loadHistory(); loadTools();
+}
+
+async function loadTools() {
+  try {
+    const tools = await api('/api/tools');
+    $('tools').textContent = 'agent tools (' + tools.length + '): ' + tools.map(t => t.name).join(' · ');
+  } catch {}
+}
+
+function render(s) {
+  const m = s.metrics || {};
+  $('cpu').textContent = Math.round(m.cpu_pct ?? 0);
+  $('ram').textContent = Math.round(m.ram_pct ?? 0);
+  $('disk').textContent = Math.round(m.disk_pct ?? 0);
+  $('net').textContent = (m.net_down_mbps ?? 0).toFixed(1);
+  for (const [id, v] of [['cpubar', m.cpu_pct], ['rambar', m.ram_pct], ['diskbar', m.disk_pct]]) {
+    const el = $(id); el.style.width = (v ?? 0) + '%';
+    el.style.background = v > 85 ? 'var(--err)' : v > 70 ? 'var(--warn)' : 'var(--mint)';
+  }
+  $('services').innerHTML = (s.services || []).map(x =>
+    `<div class="row"><span class="nm">${H(x.name)}</span><span class="mono">${H(x.target)}</span>
+     <span class="pill ${H(x.status)}">${H(x.status).toUpperCase()}</span></div>`).join('') || 'none configured';
+  const d = s.docker || {};
+  $('docker').innerHTML = d.available
+    ? (d.containers || []).map(x => `<span class="chip ${x.status === 'up' ? '' : 'dead'}"><i></i>${H(x.name)}</span>`).join('') || 'no containers'
+    : 'docker not detected';
+  $('alerts').innerHTML = (s.alerts || []).map(a =>
+    `<div class="alert ${a.level === 'err' ? 'err' : ''}">${H(a.title)}<small>${H(a.meta)}</small></div>`).join('')
+    || '<span class="mono">no active alerts</span>';
+}
+
+const api = (path, opts = {}) => fetch(path, {
+  ...opts,
+  headers: { 'X-API-Token': token, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+}).then(r => r.json());
+
+async function loadTasks() {
+  try {
+    const tasks = await api('/api/tasks');
+    $('tasks').innerHTML = tasks.map(t =>
+      `<div class="row"><span class="nm" style="${t.status === 'done' ? 'text-decoration:line-through;color:var(--faint)' : ''}">${H(t.title)}</span>
+       <span class="mono">${H(t.due ?? '')}</span>
+       <span class="pill ${t.status === 'done' ? 'up' : t.priority === 'high' ? 'down' : 'warn'}">${H(t.status).toUpperCase()}</span></div>`).join('') || 'no tasks';
+  } catch { $('tasks').textContent = 'failed to load (token?)'; }
+}
+
+function bubble(who, text) {
+  const div = document.createElement('div');
+  div.className = 'bub ' + who;
+  div.textContent = text;
+  $('chatlog').appendChild(div);
+  $('chatlog').scrollTop = 1e9;
+  return div;
+}
+
+async function loadHistory() {
+  try {
+    const hist = await api('/api/chat/history?limit=20');
+    $('chatlog').innerHTML = '';
+    hist.forEach(h => bubble(h.role === 'user' ? 'me' : 'ai', h.text));
+  } catch {}
+}
+
+async function send() {
+  const text = $('msg').value.trim();
+  if (!text) return;
+  $('msg').value = '';
+  bubble('me', text);
+  const pending = bubble('ai', '…');
+  try {
+    const res = await api('/api/chat', { method: 'POST', body: JSON.stringify({ message: text }) });
+    pending.textContent = res.reply ?? res.detail ?? 'no reply';
+  } catch (e) { pending.textContent = '⚠ ' + e; }
+}
+
+if (token) connect();
+</script>
+</body>
+</html>

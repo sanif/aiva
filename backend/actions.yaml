@@ -1,0 +1,48 @@
+# Aiva allowlisted actions.
+#
+# SECURITY: The API ONLY accepts the `id` of an action defined here. Nothing
+# outside this file can ever be executed. `shell` actions run a fixed command
+# (no user input is interpolated). Replace the placeholder shell commands below
+# with your real ones (e.g. launchctl / pm2 / scripts) as needed.
+
+actions:
+  - id: focus
+    type: internal
+    label: "Start Focus Mode"
+    description: "Engage a 45-minute focus block."
+
+  - id: note
+    type: internal
+    label: "Add Note"
+    description: "Create an empty timestamped note."
+
+  - id: voice
+    type: internal
+    label: "Voice Note"
+    description: "Start a voice note (placeholder)."
+
+  - id: restart_backend
+    type: shell
+    label: "Restart Backend"
+    description: "Restart the Aiva backend service."
+    # Placeholder. Replace with e.g.:
+    #   launchctl kickstart -k gui/$(id -u)/com.aiva.console
+    #   pm2 restart aiva
+    command: "echo 'restart requested'"
+
+  - id: open_dashboard
+    type: open_url
+    label: "Open Dashboard"
+    description: "Open the API docs in a browser."
+    url: "http://localhost:8420/docs"
+
+  - id: backup_status
+    type: shell
+    label: "Backup Status"
+    description: "Check the latest backup status."
+    command: "echo 'backup ok'"
+
+  - id: lock_display
+    type: internal
+    label: "Lock / Dim"
+    description: "Lock or dim the display (placeholder)."
